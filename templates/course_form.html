@@ -1,0 +1,56 @@
+﻿{% extends 'base.html' %}
+{% block title %}{{ 'Edit Course' if is_edit else 'Add Course' }} - IST 210 Lab 2{% endblock %}
+
+{% block content %}
+<div class=\"row justify-content-center\">
+    <div class=\"col-lg-6 col-xl-5\">
+        <div class=\"card border-0 shadow-sm rounded-4\">
+            <div class=\"card-header bg-white border-0 pt-4 pb-0 px-4\">
+                <div class=\"d-flex align-items-center gap-3\">
+                    <a href=\"{{ url_for('courses_list') }}\" class=\"btn btn-outline-secondary btn-sm rounded-circle p-2\">
+                        <i class=\"bi bi-arrow-left\"></i>
+                    </a>
+                    <div>
+                        <h4 class=\"fw-bold mb-1 text-dark\">
+                            {% if is_edit %}
+                                <i class=\"bi bi-pencil-square text-primary me-2\"></i>Edit Course
+                            {% else %}
+                                <i class=\"bi bi-journal-plus text-primary me-2\"></i>Add New Course
+                            {% endif %}
+                        </h4>
+                        <p class=\"text-muted small mb-0\">
+                            Managing master table <code>Course</code> entity.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class=\"card-body p-4\">
+                <form method=\"POST\">
+                    <div class=\"mb-3\">
+                        <label for=\"name\" class=\"form-label fw-semibold text-dark\">Course Name</label>
+                        <input type=\"text\" class=\"form-control rounded-3\" id=\"name\" name=\"name\" 
+                               placeholder=\"e.g. IST 210: Organization of Data\" 
+                               value=\"{{ course.Name if is_edit else '' }}\" required maxlength=\"50\">
+                        <div class=\"form-text\">Max 50 characters (NVARCHAR(50)).</div>
+                    </div>
+
+                    <div class=\"mb-4\">
+                        <label for=\"teacher\" class=\"form-label fw-semibold text-dark\">Instructor / Teacher</label>
+                        <input type=\"text\" class=\"form-control rounded-3\" id=\"teacher\" name=\"teacher\" 
+                               placeholder=\"e.g. Dr. Zhang\" 
+                               value=\"{{ course.Teacher if is_edit else '' }}\" required maxlength=\"256\">
+                    </div>
+
+                    <div class=\"d-flex justify-content-between align-items-center pt-3 border-top\">
+                        <a href=\"{{ url_for('courses_list') }}\" class=\"btn btn-light rounded-pill px-4\">Cancel</a>
+                        <button type=\"submit\" class=\"btn btn-primary rounded-pill px-4\">
+                            <i class=\"bi bi-check-lg me-1\"></i> {{ 'Save Changes' if is_edit else 'Create Course' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

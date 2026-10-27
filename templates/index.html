@@ -1,0 +1,234 @@
+﻿{% extends 'base.html' %}
+{% block title %}Dashboard | Multi-Table JOIN View - IST 210 Lab 2{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <!-- Summary Stat Cards -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-primary border-4">
+            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                <div>
+                    <div class="text-muted small text-uppercase fw-semibold">Total Enrollments (Credit)</div>
+                    <div class="fs-3 fw-bold text-dark">{{ stats.total_credits }}</div>
+                </div>
+                <div class="bg-primary-subtle text-primary p-3 rounded-circle">
+                    <i class="bi bi-journal-check fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-success border-4">
+            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                <div>
+                    <div class="text-muted small text-uppercase fw-semibold">Average Grade</div>
+                    <div class="fs-3 fw-bold text-dark">{{ stats.avg_grade }}%</div>
+                </div>
+                <div class="bg-success-subtle text-success p-3 rounded-circle">
+                    <i class="bi bi-award fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-info border-4">
+            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                <div>
+                    <div class="text-muted small text-uppercase fw-semibold">Active Students</div>
+                    <div class="fs-3 fw-bold text-dark">{{ stats.students_count }}</div>
+                </div>
+                <div class="bg-info-subtle text-info p-3 rounded-circle">
+                    <i class="bi bi-people fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-warning border-4">
+            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                <div>
+                    <div class="text-muted small text-uppercase fw-semibold">Courses Catalog</div>
+                    <div class="fs-3 fw-bold text-dark">{{ stats.courses_count }}</div>
+                </div>
+                <div class="bg-warning-subtle text-warning p-3 rounded-circle">
+                    <i class="bi bi-book fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Table Card -->
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white border-0 py-3 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h5 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i>Operational Enrollments & Academic Records
+            </h5>
+            <p class="text-muted small mb-0">
+                Executing live multi-table SQL JOIN across <code>Credit</code>, <code>Student</code>, <code>Person</code>, and <code>Course</code>.
+                Showing page {{ page }} of {{ total_pages }} ({{ total_records }} total live records).
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <form method="GET" action="{{ url_for('dashboard') }}" class="d-flex gap-2">
+                <div class="input-group input-group-sm">
+                    <input type="text" name="search" class="form-control rounded-start-pill" placeholder="Search student or course..." value="{{ search_query }}">
+                    {% if search_query %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-x"></i></a>
+                    {% endif %}
+                    <button class="btn btn-primary rounded-end-pill px-3" type="submit"><i class="bi bi-search"></i></button>
+                </div>
+            </form>
+            <a href="{{ url_for('enroll_create') }}" class="btn btn-primary btn-sm rounded-pill px-3 text-nowrap">
+                <i class="bi bi-plus-lg me-1"></i> Add Record
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body p-0">
+        {% if credits %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light border-top border-bottom text-secondary small text-uppercase">
+                    <tr>
+                        <th class="ps-4 py-3">Student Name</th>
+                        <th class="py-3">Student Email</th>
+                        <th class="py-3">Course Name</th>
+                        <th class="py-3">Instructor</th>
+                        <th class="py-3 text-center">Attempt</th>
+                        <th class="py-3 text-center">Grade</th>
+                        <th class="pe-4 py-3 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in credits %}
+                    <tr>
+                        <td class="ps-4 py-3 fw-semibold text-dark">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-circle bg-primary-subtle text-primary fw-bold">
+                                    {{ row.FirstName[0] }}{{ row.LastName[0] }}
+                                </div>
+                                <span>{{ row.FirstName }} {% if row.MiddleInitial %}{{ row.MiddleInitial }}. {% endif %}{{ row.LastName }}</span>
+                            </div>
+                        </td>
+                        <td class="text-muted small">
+                            <i class="bi bi-envelope me-1"></i>{{ row.Email }}
+                        </td>
+                        <td class="fw-medium text-dark">
+                            <span class="badge bg-secondary-subtle text-dark border">{{ row.CourseName }}</span>
+                        </td>
+                        <td class="text-secondary small">
+                            <i class="bi bi-person-badge me-1"></i>{{ row.Teacher }}
+                        </td>
+                        <td class="text-center">
+                            <span class="badge rounded-pill bg-light text-dark border px-2 py-1">#{{ row.Attempt }}</span>
+                        </td>
+                        <td class="text-center">
+                            {% if row.Grade >= 90 %}
+                                <span class="badge bg-success-subtle text-success border border-success px-2 py-1 fw-bold fs-7">{{ row.Grade }}%</span>
+                            {% elif row.Grade >= 80 %}
+                                <span class="badge bg-primary-subtle text-primary border border-primary px-2 py-1 fw-bold fs-7">{{ row.Grade }}%</span>
+                            {% elif row.Grade >= 70 %}
+                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning px-2 py-1 fw-bold fs-7">{{ row.Grade }}%</span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger px-2 py-1 fw-bold fs-7">{{ row.Grade }}%</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 py-3 text-end">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('enroll_edit', student_id=row.StudentId, course_id=row.CourseId, attempt=row.Attempt, grade=row.Grade) }}" 
+                                   class="btn btn-outline-secondary rounded-start-pill px-3" title="Edit Record">
+                                    <i class="bi bi-pencil me-1"></i> Edit
+                                </a>
+                                <button type="button" class="btn btn-outline-danger rounded-end-pill px-3" data-bs-toggle="modal" data-bs-target="#deleteModal{{ row.StudentId }}_{{ row.CourseId }}_{{ row.Attempt }}" title="Delete Record">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
+
+                            <!-- Delete Confirmation Modal -->
+                            <div class="modal fade text-start" id="deleteModal{{ row.StudentId }}_{{ row.CourseId }}_{{ row.Attempt }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content rounded-4 border-0 shadow">
+                                        <div class="modal-header border-0 pb-0">
+                                            <h5 class="modal-title fw-bold text-danger">
+                                                <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Safe Removal
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body py-3">
+                                            <p class="mb-2">Are you sure you want to remove the enrollment record for:</p>
+                                            <div class="p-3 bg-light rounded-3 mb-2 border">
+                                                <div><strong>Student:</strong> {{ row.FirstName }} {{ row.LastName }}</div>
+                                                <div><strong>Course:</strong> {{ row.CourseName }}</div>
+                                                <div><strong>Grade / Attempt:</strong> {{ row.Grade }}% (Attempt #{{ row.Attempt }})</div>
+                                            </div>
+                                            <small class="text-muted"><i class="bi bi-shield-check text-success me-1"></i>This operation targets the leaf operational table (<code>Credit</code>) and safely succeeds without violating foreign key constraints.</small>
+                                        </div>
+                                        <div class="modal-footer border-0 pt-0">
+                                            <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                                            <form method="POST" action="{{ url_for('enroll_delete', student_id=row.StudentId, course_id=row.CourseId, attempt=row.Attempt) }}">
+                                                <input type="hidden" name="grade" value="{{ row.Grade }}">
+                                                <button type="submit" class="btn btn-danger rounded-pill px-4">
+                                                    <i class="bi bi-trash3 me-1"></i> Delete Record
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        {% if total_pages > 1 %}
+        <div class="card-footer bg-white border-top py-3 px-4 d-flex justify-content-between align-items-center">
+            <div class="small text-muted">
+                Showing page <strong>{{ page }}</strong> of <strong>{{ total_pages }}</strong> (25 records per page)
+            </div>
+            <nav aria-label="Dashboard pagination">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                        <a class="page-link rounded-start-pill" href="{{ url_for('dashboard', page=page-1, search=search_query) }}">Previous</a>
+                    </li>
+                    <li class="page-item active">
+                        <span class="page-link">{{ page }}</span>
+                    </li>
+                    <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                        <a class="page-link rounded-end-pill" href="{{ url_for('dashboard', page=page+1, search=search_query) }}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5 px-4">
+            <div class="bg-light d-inline-flex p-4 rounded-circle mb-3">
+                <i class="bi bi-inbox text-secondary fs-1"></i>
+            </div>
+            <h5 class="fw-bold text-dark">No Enrollment Records Found</h5>
+            <p class="text-muted small mb-4">
+                {% if search_query %}
+                    No records matched your search query "{{ search_query }}". Try searching for a different term.
+                {% else %}
+                    The <code>Credit</code> table is currently empty or has not been seeded with records yet.
+                {% endif %}
+            </p>
+            <div class="d-flex justify-content-center gap-2">
+                <a href="{{ url_for('enroll_create') }}" class="btn btn-primary rounded-pill px-4">
+                    <i class="bi bi-plus-lg me-1"></i> Create New Enrollment
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
